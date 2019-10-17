@@ -1,0 +1,12 @@
+language: python
+python:
+- '3.7'
+install: pipenv install
+script: pytest -v -s --disable-warnings
+deploy:
+  provider: pypi
+  user: zabana
+  on:
+    branch: release
+  password:
+    secure: kDNQfkha3thbadStgg6ZFdVQO5hpXpMQLYYK2495k5MtTm49LE3nGJwrJ2uM7y4rHkfnfTSpG/8AaMxTd1xF9Mqh99N8f4/sXTIYqWM54OYINXjqi3ruxLBnAg7ngS9QRMMQgl+XdxU2Vx9OkJVkuWa8uGZw0jDEHhs6NX0rMs02N12dvD54kBcJFVKgn6E1c2ESEnhccr02K3l0nwvrn9PQ9lFRzZjAlrKmcHBNk3Vo2hBZy+EIcep90E8H9SreskAK9IaTqnzBy7hji07RvwdhECZQEVLQJg50jzvX3TGACzD37uB5J7DghaxvugfA8B+zuA8K/bTltoePAkiLIR8TRoOQwnZ+dvxpkR9Ger8BGuiqAaEJ/E060xEazzC7rgWVe+JolWVldU/wokZ9T4nF39/iVB+DAWUVDSxABH+QISv9ONAwX5kveObnXScCjYjNpcD2ouz27thBeK51rILpCOKh7ozvuMQ4Z2CuaJ1lL0stVNHF3zTyRuy6ZgyX85GbRlBgKIW1aysjx4B+RabDzUQ/KfShKUainTcmAVESuGp/iL3lOyctSj8oLyvlgUMqVUqzFO6s6gCDZpGK0yh5M82UhI0wiZ+s09wbIBgqxz2FQg3+zNFIWlEicvJS3i2PRPOoxQp6fLQ7mZtZKax2wMjw/AMwUuo6miT9Db0=
