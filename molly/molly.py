@@ -1,4 +1,5 @@
 import click
+import time
 import sys
 import socket
 from .utils import is_ip_v4
@@ -10,6 +11,7 @@ class Molly():
     def __init__(self, target):
         self.target = self._parse_target(target)
         self.open_ports = []
+        self.start_time = time.time()
 
     def basic_scan(self):
         click.echo('Scanning ports 1 to 1023')
@@ -24,7 +26,10 @@ class Molly():
         print(value)
 
     def common_scan(self):
-        click.echo('scanning most common ports ...')
+        click.echo('scanning top 20 ports ...')
+        for port in COMMON_PORTS:
+            self._connect(port)
+        self._send_report()
 
     def _parse_target(self, target):
 
@@ -43,26 +48,28 @@ class Molly():
             self._send_report()
             sys.exit(1)
         else:
-            return result
+            if result == 0:
+                click.echo(f'port {port} is open')
+                self.open_ports.append(str(port))
 
     def _scan(self, start, end=None):
 
         if end == None:
             end = start
             start = 1
-
         for port in range(start, end):
-            if self._connect(port) != 0:
-                click.echo(f'port {port} is closed')
-            else:
-                click.echo(f'port {port} is open')
-                self.open_ports.append(str(port))
+            self._connect(port)
 
     def _send_report(self):
         click.echo('\nReport')
         click.echo('-' * 50)
+        click.echo(f'\nTotal scan time: {self._compute_scan_time()} seconds.\n')
         if len(self.open_ports) == 0:
             click.echo('This scan did not find any open ports')
         else:
-            click.echo('Open ports: ')
-            click.echo(' '.join(self.open_ports))
+            click.echo(f'The scan found a total of {len(self.open_ports)} open ports: \n')
+            click.echo(' \n'.join(self.open_ports))
+    
+    def _compute_scan_time(self):
+        elapsed_time = time.time() - self.start_time
+        return f'{elapsed_time:.2f}'
