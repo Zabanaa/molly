@@ -1,4 +1,7 @@
+from datetime import datetime
 from molly import Molly
+from molly.constants import VERSION
+from molly.utils import format_datetime
 import click
 
 @click.group()
@@ -13,6 +16,8 @@ def cli():
 def scan(target, basic, full_scan, custom):
 
     molly = Molly(target)
+    date = datetime.now()
+    click.echo(f'Starting Molly (v {VERSION}) at {format_datetime(date)}')
 
     if basic:
         molly.basic_scan()        

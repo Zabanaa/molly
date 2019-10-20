@@ -8,3 +8,7 @@ def is_ip_v4(target):
         return False
     else:
         return True
+
+
+def format_datetime(dt):
+    return dt.strftime("%d %B %Y %I:%M:%S %p")
