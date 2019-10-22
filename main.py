@@ -3,6 +3,7 @@ from molly import Molly
 from molly.constants import VERSION
 from molly.utils import format_datetime
 import click
+import sys
 
 @click.group()
 def cli():
@@ -10,23 +11,22 @@ def cli():
 
 @cli.command()
 @click.argument('target')
-@click.option('--basic', is_flag=True, default=False)
-@click.option('--full-scan', is_flag=True, default=False)
-@click.option('--custom', is_flag=True)
-def scan(target, basic, full_scan, custom):
+@click.option('--mode', default='basic', type=str)
+def scan(target, mode):
 
-    molly = Molly(target)
     date = datetime.now()
     click.echo(f'Starting Molly (v {VERSION}) at {format_datetime(date)}')
 
-    if basic:
-        molly.basic_scan()        
-    elif full_scan:
-        molly.full_scan()
-    elif custom:
-        molly.custom_scan()
-    else:
-        molly.common_scan()
+    molly = Molly(target=target, mode=mode)
+    try:
+        molly.get_ports_to_scan()
+    except ValueError as exc:
+        error_msg = exc.args[0]
+        click.echo(f'[Error]: { error_msg }')
+        sys.exit(1)
+    
+    molly.run_scan()
+
 
 
 cli.add_command(scan)

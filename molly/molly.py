@@ -1,43 +1,77 @@
+from queue import Queue
+from threading import Thread
 import click
+import os
 import time
 import sys
 import socket
 from .utils import is_ip_v4
-from .constants import FIRST_1000_PORTS, ALL_PORTS, COMMON_PORTS
+from .constants import FIRST_1000_PORTS, ALL_PORTS, TOP_20_PORTS
 
 
 class Molly():
 
-    def __init__(self, target):
+    def __init__(self, target, mode):
         self.hostname = target 
+        self.mode = mode 
         self.target = self._parse_target(target)
+        self.queue = Queue()
         self.open_ports = []
         self.closed_ports = []
         self.start_time = time.time()
+        self.max_workers = os.cpu_count() * 2
 
-    def basic_scan(self):
-        click.echo('Scanning ports 1 to 1023 ...')
-        self._scan(FIRST_1000_PORTS)
 
-    def full_scan(self):
-        click.echo('Perfoming a full port scan ...')
-        self._scan(ALL_PORTS)
-
-    def custom_scan(self):
-        ports = click.prompt('Please select a range of ports (separated by a comma)', type=str)
-        try:
-            start, end = self._get_custom_port_range(ports)
-        except ValueError as e:
-            click.echo(str(e))
-            sys.exit(1)
+    def get_ports_to_scan(self):
+        if self.mode == 'basic':
+            self._add_ports_to_queue(FIRST_1000_PORTS)
+        elif self.mode == 'full':
+            self._add_ports_to_queue(ALL_PORTS)
+        elif self.mode == 'common':
+            self._add_ports_to_queue(TOP_20_PORTS)
+        elif self.mode == 'custom':
+            ports = self._get_custom_port_range()
+            self._add_ports_to_queue(ports)
         else:
-            self._scan(start, end)
+            raise ValueError(f'Unexpected value for --mode option: {self.mode}')
+    
+    def _scan(self):
+        while not self.queue.empty():
+            port = self.queue.get()
+            connection_descriptor = self._connect(port)
+            if connection_descriptor == 0:
+                self.open_ports.append(port)
+                click.echo(f'Port {port} is open')
+            else:
+                self.closed_ports.append(port)
 
-    def common_scan(self):
-        click.echo('Scanning top 20 ports ...')
-        for port in COMMON_PORTS:
-            self._connect(port)
+    def run_scan(self):
+        print(f'Running scan (Mode: {self.mode}) ...')
+        threads = []
+        for _ in range(100):
+        # for _ in range(self.max_workers):
+            t = Thread(target=self._scan)
+            threads.append(t)
+            t.start()
+
+        for t in threads:
+            t.join()
+        
         self._send_report()
+        
+    
+    def _add_ports_to_queue(self, ports):
+        if isinstance(ports, int):
+            for port in range(1, ports):
+                self.queue.put(port)
+        elif isinstance(ports, list):
+            for port in ports:
+                self.queue.put(port)
+        elif isinstance(ports, tuple):
+            start = ports[0]
+            end = ports[1]
+            for port in range(start, end):
+                self.queue.put(port)
 
     def _parse_target(self, target):
 
@@ -56,24 +90,12 @@ class Molly():
             self._send_report()
             sys.exit(1)
         else:
-            if result == 0:
-                self.open_ports.append(str(port))
-            else:
-                self.closed_ports.append(str(port))
-
-    def _scan(self, start, end=None):
-
-        if end == None:
-            end = start
-            start = 1
-        for port in range(start, end):
-            self._connect(port)
-        
-        self._send_report()
+            return result
 
     def _send_report(self):
         click.echo(f'\nMolly Scan Report for {self.target} ({self.hostname})')
         click.echo('-' * 40)
+        self.open_ports = list(map(str, self.open_ports))
         if len(self.open_ports) == 0:
             click.echo('This scan did not find any open ports')
         else:
@@ -87,17 +109,21 @@ class Molly():
         elapsed_time = time.time() - self.start_time
         return f'{elapsed_time:.2f}'
     
-    def _get_custom_port_range(self, input_value):
+    def _get_custom_port_range(self):
+        port_range = click.prompt('Please select a range of ports (separated by a comma)', type=str)
+        port_range = port_range.replace(' ', '').split(',')
+        port_range = tuple(filter(str, port_range))
 
-        try:
-            ports = [int(port) for port in input_value.replace(' ', '').split(',')[0:2]]
+        try: 
+            port_range = tuple(map(int, port_range))
+            if len(port_range) < 2:
+                click.echo(f'[Error]: Port range should be TWO numbers, separated by a comma. You provided {port_range}')
+                sys.exit(1)
         except ValueError:
-            click.echo(f'Error: invalid port range ({input_value})')
-            sys.exit()
-
-        if len(ports) < 2:
-            raise ValueError('Error: ports should be separated by commas')
+            click.echo(f'[Error]: Illegal value for port range, you provided {port_range}')
+            sys.exit(1)
         else:
-            if ports[1] < ports[0]:
-                raise ValueError(f'Error: Start range is bigger than end range: {ports}')
-            return ports
+            if port_range[0] > port_range[1]:
+                click.echo(f'[Error]: Start port cannot be bigger than the last port. You provided {port_range}')
+                sys.exit(1)
+            return port_range
