@@ -12,12 +12,14 @@ def cli():
 @cli.command()
 @click.argument('target')
 @click.option('--mode', default='basic', type=str)
-def scan(target, mode):
+@click.option('--workers', default=100, type=int)
+def scan(target, mode, workers):
 
     date = datetime.now()
     click.echo(f'Starting Molly (v {VERSION}) at {format_datetime(date)}')
 
-    molly = Molly(target=target, mode=mode)
+    molly = Molly(target=target, mode=mode, workers=workers)
+
     try:
         molly.get_ports_to_scan()
     except ValueError as exc:

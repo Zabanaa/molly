@@ -11,7 +11,7 @@ from .constants import FIRST_1000_PORTS, ALL_PORTS, TOP_20_PORTS
 
 class Molly():
 
-    def __init__(self, target, mode):
+    def __init__(self, target, mode, workers):
         self.hostname = target 
         self.mode = mode 
         self.target = self._parse_target(target)
@@ -19,7 +19,7 @@ class Molly():
         self.open_ports = []
         self.closed_ports = []
         self.start_time = time.time()
-        self.max_workers = os.cpu_count() * 2
+        self.max_workers = workers
 
 
     def get_ports_to_scan(self):
@@ -48,8 +48,7 @@ class Molly():
     def run_scan(self):
         print(f'Running scan (Mode: {self.mode}) ...')
         threads = []
-        for _ in range(100):
-        # for _ in range(self.max_workers):
+        for _ in range(self.max_workers):
             t = Thread(target=self._scan)
             threads.append(t)
             t.start()
