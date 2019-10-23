@@ -1,5 +1,4 @@
 import datetime
-import pytest
 from molly.utils import (
     is_ip_v4,
     format_datetime
