@@ -10,9 +10,11 @@ def test_is_ip_v4():
     is_ip = is_ip_v4('127.0.0.1')
     assert is_ip == True
 
+
 def test_is_not_ip_v4():
     is_ip = is_ip_v4('localhost')
     assert is_ip == False
+
 
 def test_format_datetime():
     test_dt = datetime.datetime(2019, 10, 23, 16, 18, 57, 688789)
