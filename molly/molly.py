@@ -1,5 +1,5 @@
 from queue import Queue
-from threading import Thread
+from threading import Thread, Event
 import click
 import os
 import time
@@ -20,6 +20,7 @@ class Molly():
         self.closed_ports = []
         self.start_time = time.time()
         self.max_workers = workers
+        self.exit_signal = Event()
 
 
     def get_ports_to_scan(self):
@@ -36,7 +37,7 @@ class Molly():
             raise ValueError(f'Unexpected value for --mode option: {self.mode}')
     
     def _scan(self):
-        while not self.queue.empty():
+        while not self.queue.empty() and not self.exit_signal.is_set():
             port = self.queue.get()
             connection_descriptor = self._connect(port)
             if connection_descriptor == 0:
@@ -52,12 +53,20 @@ class Molly():
             t = Thread(target=self._scan)
             threads.append(t)
             t.start()
+        
+        try:
+            while not self.exit_signal.is_set():
+                pass
+        except KeyboardInterrupt:
+            self.exit_signal.set()
+            click.echo('\nExiting ...')
+            self._send_report()
+            sys.exit(1)
 
         for t in threads:
             t.join()
         
         self._send_report()
-        
     
     def _add_ports_to_queue(self, ports):
         if isinstance(ports, int):
@@ -82,14 +91,8 @@ class Molly():
     def _connect(self, port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(.5)
-        try: 
-            result = s.connect_ex((self.target, port))
-        except KeyboardInterrupt:
-            click.echo('\nExiting ...')
-            self._send_report()
-            sys.exit(1)
-        else:
-            return result
+        result = s.connect_ex((self.target, port))
+        return result
 
     def _send_report(self):
         click.echo(f'\nMolly Scan Report for {self.target} ({self.hostname})')
