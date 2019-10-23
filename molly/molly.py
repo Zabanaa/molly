@@ -102,7 +102,7 @@ class Molly():
             click.echo(f'Found {len(self.open_ports)} open ports: \n')
             click.echo(' \n'.join(self.open_ports))
 
-        click.echo(f'\nMolly done: 1 IP scanned (1 Host Up) scanned in {self._compute_scan_time()} seconds.')
+        click.echo(f'\nMolly done: 1 IP scanned (1 Host Up) {self.total_ports_scanned} ports scanned in {self._compute_scan_time()} seconds.')
     
     def _compute_scan_time(self):
         elapsed_time = time.time() - self.start_time
@@ -126,3 +126,7 @@ class Molly():
                 click.echo(f'[Error]: Start port cannot be bigger than the last port. You provided {port_range}')
                 sys.exit(1)
             return port_range
+        
+    @property
+    def total_ports_scanned(self):
+        return len(self.open_ports + self.closed_ports)
