@@ -1,6 +1,6 @@
 from datetime import datetime
 from molly import Molly
-from molly.constants import VERSION
+from molly.constants import VERSION, ALLOWED_MODES
 from molly.utils import format_datetime
 import click
 import sys
@@ -11,7 +11,14 @@ def cli():
 
 @cli.command()
 @click.argument('target')
-@click.option('--mode', default='basic', type=str)
+@click.option(
+                '--mode', 
+                default='basic', 
+                type=click.Choice(
+                    ALLOWED_MODES,
+                    case_sensitive=False
+                )
+            )
 @click.option('--workers', default=100, type=int)
 def scan(target, mode, workers):
 
@@ -28,7 +35,6 @@ def scan(target, mode, workers):
         sys.exit(1)
     
     molly.run_scan()
-
 
 
 cli.add_command(scan)
