@@ -119,15 +119,12 @@ class Molly():
         try: 
             port_range = tuple(map(int, port_range))
             if len(port_range) < 2:
-                click.echo(f'[Error]: Port range should be TWO numbers, separated by a comma. You provided {port_range}')
-                sys.exit(1)
+                sys.exit(f'[Error]: Port range should be TWO numbers, separated by a comma. You provided {port_range}')
         except ValueError:
-            click.echo(f'[Error]: Illegal value for port range, you provided {port_range}')
-            sys.exit(1)
+            sys.exit(f'[Error]: Illegal value for port range, you provided {port_range}')
         else:
             if port_range[0] > port_range[1]:
-                click.echo(f'[Error]: Start port cannot be bigger than the last port. You provided {port_range}')
-                sys.exit(1)
+                sys.exit(f'[Error]: Start port cannot be bigger than the last port. You provided {port_range}')
             return port_range
         
     @property
