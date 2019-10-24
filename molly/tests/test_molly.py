@@ -112,3 +112,20 @@ def test_molly_connect(_molly):
     with mock.patch('molly.molly.socket') as sock:
         _molly._connect(port)
     sock.socket.assert_called_once_with(sock.AF_INET, sock.SOCK_STREAM)
+
+
+def test_molly_parse_target_ip_v4(_molly):
+    ip = '34.165.22.11'
+    target = _molly._parse_target(ip)
+    assert target == ip
+
+
+def test_molly_parse_target_ip_domain_name(_molly):
+    ip = '45.33.32.156'
+    domain = 'scanme.nmap.org'
+    target = _molly._parse_target(domain)
+    assert target == ip
+
+    with mock.patch('socket.gethostbyname', return_value=None) as sock:
+        _molly._parse_target(domain)
+    sock.assert_called_once_with(domain)
