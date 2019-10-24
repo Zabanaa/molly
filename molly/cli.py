@@ -31,8 +31,7 @@ def scan(target, mode, workers):
         molly.get_ports_to_scan()
     except ValueError as exc:
         error_msg = exc.args[0]
-        click.echo(f'[Error]: { error_msg }')
-        sys.exit(1)
+        sys.exit(f'[Error]: { error_msg }')
     
     molly.run_scan()
 
