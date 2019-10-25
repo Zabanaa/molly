@@ -129,3 +129,11 @@ def test_molly_parse_target_ip_domain_name(_molly):
     with mock.patch('socket.gethostbyname', return_value=None) as sock:
         _molly._parse_target(domain)
     sock.assert_called_once_with(domain)
+
+def test_molly_parse_target_ip_error_domain(_molly):
+    domain = 'pkepowe.eqpwewqe.l'
+
+    with pytest.raises(SystemExit) as exc_info:
+        _molly._parse_target(domain)
+    
+    assert domain in str(exc_info.value)

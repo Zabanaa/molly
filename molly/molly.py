@@ -1,4 +1,3 @@
-from datetime import datetime
 from queue import Queue
 from threading import Thread, Event
 import click
@@ -6,7 +5,7 @@ import os
 import time
 import sys
 import socket
-from .utils import is_ip_v4, format_datetime
+from .utils import is_ip_v4
 from .constants import FIRST_1000_PORTS, ALL_PORTS, TOP_20_PORTS, VERSION
 
 
@@ -50,8 +49,6 @@ class Molly():
                 self.closed_ports.append(port)
 
     def run_scan(self):
-        date = datetime.now()
-        click.echo(f'Starting Molly (v {VERSION}) at {format_datetime(date)}')
         click.echo(f'Running scan (Mode: {self.mode}) ...')
         self.start_time = time.time()
 
@@ -92,7 +89,13 @@ class Molly():
         if is_ip_v4(target):
             return target
         else:
-            return socket.gethostbyname(target)
+            try:
+                _target = socket.gethostbyname(target)
+            except socket.gaierror:
+                sys.exit(f'[Error] No Address Associated With Hostname. ({target})')
+            else:
+                return _target
+
     
     def _connect(self, port):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -1,5 +1,7 @@
+from datetime import datetime
 from molly import Molly
 from molly.constants import ALLOWED_MODES, VERSION
+from molly.utils import format_datetime
 import click
 import sys
 
@@ -45,6 +47,10 @@ def scan(target, mode, workers):
 
     custom: will prompt you to enter your desired port range (separated by a comma)
     """
+
+    date = datetime.now()
+    click.echo(f'Starting Molly (v {VERSION}) at {format_datetime(date)}')
+
     molly = Molly(target=target, mode=mode, workers=workers)
 
     try:
