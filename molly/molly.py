@@ -1,3 +1,4 @@
+from datetime import datetime
 from queue import Queue
 from threading import Thread, Event
 import click
@@ -5,8 +6,8 @@ import os
 import time
 import sys
 import socket
-from .utils import is_ip_v4
-from .constants import FIRST_1000_PORTS, ALL_PORTS, TOP_20_PORTS
+from .utils import is_ip_v4, format_datetime
+from .constants import FIRST_1000_PORTS, ALL_PORTS, TOP_20_PORTS, VERSION
 
 
 class Molly():
@@ -18,9 +19,10 @@ class Molly():
         self.queue = Queue()
         self.open_ports = []
         self.closed_ports = []
-        self.start_time = time.time()
         self.max_workers = workers
         self.exit_signal = Event()
+        self.start_time = None
+        self.end_time = None
 
 
     def get_ports_to_scan(self):
@@ -38,6 +40,7 @@ class Molly():
     
     def _scan(self):
         while not self.queue.empty() and not self.exit_signal.is_set():
+
             port = self.queue.get()
             connection_descriptor = self._connect(port)
             if connection_descriptor == 0:
@@ -47,7 +50,11 @@ class Molly():
                 self.closed_ports.append(port)
 
     def run_scan(self):
-        print(f'Running scan (Mode: {self.mode}) ...')
+        date = datetime.now()
+        click.echo(f'Starting Molly (v {VERSION}) at {format_datetime(date)}')
+        click.echo(f'Running scan (Mode: {self.mode}) ...')
+        self.start_time = time.time()
+
         threads = []
         for _ in range(self.max_workers):
             t = Thread(target=self._scan)
@@ -55,8 +62,7 @@ class Molly():
             t.start()
         
         try:
-            while not self.exit_signal.is_set():
-                pass
+            pass
         except KeyboardInterrupt:
             self.exit_signal.set()
             click.echo('\nExiting ...')
@@ -65,7 +71,7 @@ class Molly():
 
         for t in threads:
             t.join()
-        
+
         self._send_report()
     
     def _add_ports_to_queue(self, ports):
@@ -95,20 +101,21 @@ class Molly():
         return result
 
     def _send_report(self):
+        self.end_time = time.time()
+        self.open_ports = list(map(str, self.open_ports))
+
         click.echo(f'\nMolly Scan Report for {self.target} ({self.hostname})')
         click.echo('-' * 40)
-        self.open_ports = list(map(str, self.open_ports))
-        if len(self.open_ports) == 0:
-            click.echo('This scan did not find any open ports')
-        else:
-            click.echo(f'Found {len(self.closed_ports)} closed ports.\n')
-            click.echo(f'Found {len(self.open_ports)} open ports: \n')
+        click.echo(f'Found {len(self.closed_ports)} closed ports.\n')
+        click.echo(f'Found {len(self.open_ports)} open ports: \n')
+
+        if len(self.open_ports) != 0:
             click.echo(' \n'.join(self.open_ports))
 
         click.echo(f'\nMolly done: 1 IP scanned (1 Host Up) {self.total_ports_scanned} ports scanned in {self._compute_scan_time()} seconds.')
     
     def _compute_scan_time(self):
-        elapsed_time = time.time() - self.start_time
+        elapsed_time = self.end_time - self.start_time
         return f'{elapsed_time:.2f}'
     
     def _get_custom_port_range(self):

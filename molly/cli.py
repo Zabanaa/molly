@@ -1,7 +1,5 @@
-from datetime import datetime
 from molly import Molly
-from molly.constants import VERSION, ALLOWED_MODES
-from molly.utils import format_datetime
+from molly.constants import ALLOWED_MODES
 import click
 import sys
 
@@ -21,9 +19,6 @@ def cli():
             )
 @click.option('--workers', default=100, type=int)
 def scan(target, mode, workers):
-
-    date = datetime.now()
-    click.echo(f'Starting Molly (v {VERSION}) at {format_datetime(date)}')
 
     molly = Molly(target=target, mode=mode, workers=workers)
 
