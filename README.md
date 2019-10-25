@@ -52,12 +52,12 @@ molly scan 192.168.0.4 --workers 200
 
 
 ## Future features and Roadmap
-While molly in its current state is not in alpha by any measure. I plan on adding more features to it as I go along and learn more about computer networking. The aim is for me to solidify my knowledge in the subject and to provide **you** with a solid application that you can use reliably.
+While molly in its current state is not in alpha by any measure, I plan on adding more features to it as I go along and learn more about computer networking. The aim is for me to solidify my knowledge in the subject and to provide **you** with a solid application that you can use reliably.
 
 The following is the list of features a plan on implementing:
 
 - Ping sweeps
-- Ip Ranges
+- IP Ranges
 - "Stealthy" port scanning
 
 ## Licence
