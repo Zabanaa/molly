@@ -5,11 +5,12 @@ verify_ssl = true
 
 [dev-packages]
 pylint = "*"
+flake8 = "*"
+pytest = "*"
 
 [packages]
-flake8 = "*"
 click = "*"
-pytest = "*"
+molly-py = {editable = true,path = "."}
 
 [requires]
 python_version = "3.7"
