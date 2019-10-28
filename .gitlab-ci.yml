@@ -1,11 +1,17 @@
 image: python:3.7-alpine
 
 stages:
+  - tests
   - deploy
 
 before_script:
-  - pip install twine
+  - pip install twine pipenv
   - python setup.py sdist
+
+tests:
+  script:
+    - pipenv install
+    - pytest -v -s --disable-warnings
 
 deploy:
   stage: deploy
