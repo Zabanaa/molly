@@ -16,7 +16,7 @@ setuptools.setup(
     author="Karim C",
     author_email="karim.cheurfi@gmail.com",
     classifiers=[
-        'Development Status :: 5 - Production/Stable'
+        'Development Status :: 5 - Production/Stable',
         'Programming Language :: Python :: 3.7',
         'Intended Audience :: Developers',
         'Operating System :: OS Independent',
