@@ -39,7 +39,7 @@
                 "sha256:09a3fba616519311f1af8a461f804b68f0370e100c9264a035aa7846d7852e33",
                 "sha256:5a79c9b4bd6c4be777424593f957c996e20beb5f74e0bc332f47713c6f675efe"
             ],
-            "version": "==2.3.2"
+            "version": "<2.2"
         },
         "atomicwrites": {
             "hashes": [
