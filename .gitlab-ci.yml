@@ -12,7 +12,7 @@ before_script:
 run_tests:
   stage: tests
   script:
-    - pytest -v -s --disable-warnings
+    - echo requirements.txt
 
 deploy:
   stage: deploy
