@@ -8,7 +8,8 @@ before_script:
   - pip install twine pipenv
   - python setup.py sdist
 
-tests:
+run_tests:
+  stage: tests
   script:
     - pipenv install
     - pytest -v -s --disable-warnings
