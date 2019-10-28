@@ -6,12 +6,11 @@ stages:
 
 before_script:
   - pip install twine pipenv pytest
-  - python setup.py sdist
+  - pipenv install --dev
 
 run_tests:
   stage: tests
   script:
-    - pipenv install 
     - pytest -v -s --disable-warnings
 
 deploy:
@@ -20,6 +19,7 @@ deploy:
     TWINE_USERNAME: $PYPI_USERNAME
     TWINE_PASSWORD: $PYPI_PASSWORD
   script:
+    - python setup.py sdist
     - twine upload --skip-existing dist/*
   only:
     - production
