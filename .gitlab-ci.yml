@@ -6,7 +6,7 @@ stages:
 
 before_script:
   - pip install twine pipenv
-  - pipenv install
+  - pipenv install --dev
 
 run_tests:
   stage: tests
