@@ -6,11 +6,12 @@ stages:
 
 before_script:
   - pip install twine pipenv
-  - pipenv install --dev
+  - pipenv install 
 
 run_tests:
   stage: tests
   script:
+    - pipenv install pytest
     - pytest -v -s --disable-warnings
 
 deploy:
