@@ -5,13 +5,12 @@ stages:
   - deploy
 
 before_script:
-  - pip install twine pipenv
+  - pip install twine pipenv pytest
   - pipenv install 
 
 run_tests:
   stage: tests
   script:
-    - pipenv install pytest
     - pytest -v -s --disable-warnings
 
 deploy:
