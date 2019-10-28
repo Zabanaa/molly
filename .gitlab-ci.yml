@@ -6,8 +6,7 @@ stages:
 
 before_script:
   - pip install twine pipenv
-  - pipenv run pip freeze > requirements.txt
-  - pip install -r requirements.txt
+  - pipenv install
 
 run_tests:
   stage: tests
