@@ -11,7 +11,7 @@ run_tests:
   stage: tests
   script:
     - pipenv install --dev
-    - pytest -v -s --disable-warnings
+    - pipenv run pytest -v -s --disable-warnings
 
 deploy:
   stage: deploy
